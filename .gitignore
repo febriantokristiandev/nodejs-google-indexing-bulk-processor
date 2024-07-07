@@ -1,0 +1,10 @@
+# Node.js dependencies
+node_modules/
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Credentials file
+cred.json
+token.json

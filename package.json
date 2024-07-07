@@ -1,0 +1,16 @@
+{
+  "name": "autorequestindexinggoogle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "febriantokristian",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "csv-writer": "^1.6.0",
+    "googleapis": "^140.0.1"
+  }
+}
