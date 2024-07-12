@@ -8,8 +8,10 @@
     "dist": "electron-builder"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.4.0",
     "electron": "31.2.0",
-    "electron-builder": "24.13.3"
+    "electron-builder": "24.13.3",
+    "electron-packager": "^17.1.2"
   },
   "build": {
     "appId": "com.febridev.autoindexrequest",

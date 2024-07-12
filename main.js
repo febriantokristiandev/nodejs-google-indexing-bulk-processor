@@ -23,24 +23,7 @@ function createMainWindow() {
   });
 }
 
-function createLoadingWindow() {
-  loadingWindow = new BrowserWindow({
-    width: 400,
-    height: 300,
-    frame: false,
-    transparent: true,
-    alwaysOnTop: true,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
-
-  loadingWindow.loadFile(path.join(__dirname, 'views/loading_electron.html'));
-}
-
 app.whenReady().then(() => {
-    createLoadingWindow(); // Show loading screen
   
     // Start the server
     serverProcess = spawn('node', ['app.js'], { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] });
