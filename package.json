@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "auto-index-request",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
@@ -12,18 +12,21 @@
     "electron-builder": "24.13.3"
   },
   "build": {
-    "appId": "com.example.myapp",
-    "productName": "MyApp",
+    "appId": "com.febridev.autoindexrequest",
+    "productName": "Google Console Auto Indexer",
     "files": [
       "**/*"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "img/icon.ico"
     }
   },
   "dependencies": {
     "axios": "^1.7.2",
     "google-auth-library": "^9.11.0",
     "opn": "^6.0.0"
-  }
+  },
+  "author": "febriantokristiandev",
+  "description": "An application for auto-registering links in Google Console"
 }
