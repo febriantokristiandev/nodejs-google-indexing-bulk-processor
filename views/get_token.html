@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Indexing API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #00796b;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #004d40;
+        }
+        button, input[type="text"], form {
+            margin-top: 15px;
+            width: 100%;
+        }
+        button {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #004d40;
+        }
+        input[type="text"] {
+            padding: 10px;
+            border: 2px solid #00796b;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        label {
+            text-align: left;
+            display: block;
+            margin-bottom: 5px;
+            color: #004d40;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .note {
+            font-size: 14px;
+            color: #004d40;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Google Indexing API</h1>
+        <p>Please click the button below to authorize this app and obtain your Authorization token.</p>
+        <button id="authButton">Authorize</button>
+        <p class="note">Requests can only be made once every minute because Google limits requests to prevent API spam detection.</p>
+        <form action="/submit" method="post">
+            <label for="code">Enter the code here:</label>
+            <input type="text" id="code" name="code" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('authButton').addEventListener('click', () => {
+            window.location.href = '/auth-url'; 
+        });
+    </script>
+</body>
+</html>

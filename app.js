@@ -2,6 +2,12 @@ const { OAuth2Client } = require('google-auth-library');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const express = require('express');
+const bodyParser = require('body-parser');
+const opn = require('opn');
+
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const credentialsPath = './cred.json';
 const tokenPath = './token.json';
@@ -9,6 +15,10 @@ const logDir = './log';
 const successLogPath = path.join(logDir, 'success_log.txt');
 const errorLogPath = path.join(logDir, 'error_log.txt');
 const linkFilePath = './cek_link.txt';
+
+let totalUrls = 0;
+let processedUrls = 0;
+let results = [];
 
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
@@ -26,7 +36,6 @@ if (!fs.existsSync(linkFilePath)) {
   fs.writeFileSync(linkFilePath, '');
 }
 
-// Create cred.json if it does not exist
 if (!fs.existsSync(credentialsPath)) {
   const defaultCredentials = {
     "web": {
@@ -49,7 +58,7 @@ const credentials = JSON.parse(fs.readFileSync(credentialsPath));
 const oauth2Client = new OAuth2Client(
   credentials.web.client_id,
   credentials.web.client_secret,
-  'http://localhost/callback'
+  credentials.web.redirect_uris[0]
 );
 
 async function getAccessToken() {
@@ -62,23 +71,7 @@ async function getAccessToken() {
         scope: 'https://www.googleapis.com/auth/indexing'
       });
 
-      console.log('Authorize this app by visiting this url:', authUrl);
-
-      const code = await new Promise((resolve) => {
-        const readline = require('readline').createInterface({
-          input: process.stdin,
-          output: process.stdout,
-        });
-        readline.question('Enter the code from that page here: ', (code) => {
-          readline.close();
-          resolve(code);
-        });
-      });
-
-      const { tokens } = await oauth2Client.getToken(code);
-      oauth2Client.setCredentials(tokens);
-      fs.writeFileSync(tokenPath, JSON.stringify(tokens));
-      token = tokens;
+      return authUrl;
     }
 
     return token.access_token;
@@ -108,9 +101,11 @@ async function requestIndexing(url) {
       }
     );
     await logSuccess(url);
+    results.push({ url, status: 'Success', details: 'URL successfully indexed' });
   } catch (error) {
     const reason = error.response && error.response.data && error.response.data.error ? error.response.data.error.message : error.message;
     await logError(url, reason);
+    results.push({ url, status: 'Failed', details: reason });
   }
 }
 
@@ -118,35 +113,78 @@ async function logSuccess(url) {
   const date = new Date().toISOString();
   const data = `${date} - ${url}\n`;
   await fs.promises.appendFile(successLogPath, data, 'utf8');
+  processedUrls++;
 }
 
 async function logError(url, reason) {
   const date = new Date().toISOString();
   const data = `${date} - ${url} - ${reason}\n`;
   await fs.promises.appendFile(errorLogPath, data, 'utf8');
+  processedUrls++;
 }
 
-(async () => {
+app.get('/', async (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/get_token.html'));
+});
+
+app.get('/auth-url', async (req, res) => {
+  const authUrl = await getAccessToken();
+  if (authUrl) {
+    opn(authUrl);
+  } else {
+    res.send('/unable-to-access-token');
+  }
+});
+
+app.get('/unable-to-access-token', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/unable_to_access_token.html'));
+});
+
+app.get('/not-found', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views/not_found.html'));
+});
+
+app.post('/submit', async (req, res) => {
+  const code = req.body.code;
+
   try {
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+    fs.writeFileSync(tokenPath, JSON.stringify(tokens));
+
     const urls = fs.readFileSync(linkFilePath, 'utf8').split('\n').filter(url => url.trim());
-    const totalUrls = urls.length;
-    let processedUrls = 0;
+    totalUrls = urls.length;
 
     if (totalUrls === 0) {
-      console.log('No URLs found in the link file.');
+      res.send('No URLs found in the link file.');
       return;
     }
 
-    console.log(`Total URLs to process: ${totalUrls}`);
-
-    for (const url of urls) {
+    urls.forEach(async (url) => {
       await requestIndexing(url);
-      processedUrls++;
-      process.stdout.write(`Processed ${processedUrls}/${totalUrls} URLs\r`);
-    }
+    });
 
-    console.log('Processing complete.');
+    res.sendFile(path.join(__dirname, 'views/processing.html'));
   } catch (error) {
-    console.error('Error reading URL file:', error.message);
+    res.send(`Error: ${error.message}`);
   }
-})();
+});
+
+app.get('/token-callback', (req, res) => {
+  const code = req.query.code;
+  const scope = req.query.scope;
+
+  if (code && scope) {
+    res.sendFile(path.join(__dirname, 'views/token_callback.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'views/unable_to_access_token.html'));
+  }
+});
+
+app.get('/status', (req, res) => {
+  res.json({ processed: processedUrls, total: totalUrls, results });
+});
+
+app.listen(7890, () => {
+  console.log('Server is running on http://localhost:7890');
+});

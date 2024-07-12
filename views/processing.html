@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing URLs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        p#status {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            border-collapse: collapse;
+            background-color: #fff;
+            color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        th, td {
+            padding: 12px 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Processing URLs</h1>
+    <p id="status">Processing 0/0 URLs</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Link</th>
+                <th>Status</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody id="results">
+            <!-- Results data -->
+        </tbody>
+    </table>
+    <script>
+        async function checkStatus() {
+            const response = await fetch('/status');
+            const { processed, total, results } = await response.json();
+            document.getElementById('status').innerText = `Processing ${processed}/${total} URLs`;
+
+            const resultsTable = document.getElementById('results');
+            resultsTable.innerHTML = ''; // Clear previous results
+
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${result.url}</td>
+                    <td>${result.status}</td>
+                    <td>${result.details}</td>
+                `;
+                resultsTable.appendChild(row);
+            });
+
+            if (processed < total) {
+                setTimeout(checkStatus, 5000);
+            }
+        }
+        checkStatus();
+    </script>
+</body>
+</html>

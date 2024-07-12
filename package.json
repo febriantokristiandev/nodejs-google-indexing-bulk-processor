@@ -1,16 +1,29 @@
 {
-  "name": "autorequestindexinggoogle",
+  "name": "my-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node app.js",
+    "electron": "electron .",
+    "dist": "electron-builder"
   },
-  "author": "febriantokristian",
-  "license": "ISC",
+  "devDependencies": {
+    "electron": "31.2.0",
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "com.example.myapp",
+    "productName": "MyApp",
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  },
   "dependencies": {
     "axios": "^1.7.2",
-    "csv-writer": "^1.6.0",
-    "googleapis": "^140.0.1"
+    "google-auth-library": "^9.11.0",
+    "opn": "^6.0.0"
   }
 }

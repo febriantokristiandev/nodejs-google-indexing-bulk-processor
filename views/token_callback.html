@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 18px;
+            margin: 10px 0;
+            word-wrap: break-word;
+        }
+        button {
+            display: block;
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Token Information</h1>
+        <p><strong>Token:</strong> <span id="token"></span></p>
+        <p><strong>Scope:</strong> <span id="scope"></span></p>
+        <button onclick="copyToClipboard()">Copy Token</button>
+        <button onclick="copyScopeToClipboard()">Copy Scope</button>
+    </div>
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function copyToClipboard() {
+            const token = document.getElementById('token').innerText;
+            navigator.clipboard.writeText(token).then(() => {
+                alert('Token copied to clipboard!');
+            });
+        }
+
+        function copyScopeToClipboard() {
+            const scope = document.getElementById('scope').innerText;
+            navigator.clipboard.writeText(scope).then(() => {
+                alert('Scope copied to clipboard!');
+            });
+        }
+
+        // Populate the token and scope from query parameters
+        document.getElementById('token').innerText = getQueryParam('code');
+        document.getElementById('scope').innerText = getQueryParam('scope');
+    </script>
+</body>
+</html>
