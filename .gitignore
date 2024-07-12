@@ -8,3 +8,7 @@ node_modules/
 # Credentials file
 cred.json
 token.json
+
+win-unpacked/
+dist/
+build/
