@@ -12,3 +12,4 @@ token.json
 win-unpacked/
 dist/
 build/
+out/

@@ -2,9 +2,8 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 
-let serverProcess;
 let mainWindow;
-let loadingWindow;
+let serverProcess;
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
@@ -23,53 +22,37 @@ function createMainWindow() {
   });
 }
 
-app.whenReady().then(() => {
-  
-    // Start the server
-    serverProcess = spawn('node', ['app.js'], { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] });
-  
-    // Ensure the server is ready before creating the main window
-    serverProcess.stdout.on('data', (data) => {
-      if (data.toString().includes('Server is running')) {
-        if (loadingWindow) {
-          loadingWindow.close();
-        }
-        createMainWindow();
-      }
-    });
-  
-    serverProcess.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
-    });
-  
-    serverProcess.on('error', (error) => {
-      console.error(`Error starting server: ${error.message}`);
-    });
-  
-    serverProcess.on('exit', (code) => {
-      console.log(`Server process exited with code ${code}`);
-    });
-  
-    app.on('activate', () => {
-      if (mainWindow === null) {
-        createMainWindow();
-      }
-    });
+function startServer() {
+  serverProcess = spawn('node', [path.join(__dirname, 'app.js')], { stdio: 'inherit' });
+
+  serverProcess.on('error', (err) => {
+    console.error('Failed to start server:', err);
   });
-  
+
+  serverProcess.on('exit', (code) => {
+    if (code !== 0) {
+      console.error(`Server exited with code ${code}`);
+    }
+  });
+}
+
+app.on('ready', () => {
+  startServer();
+  // Wait a bit to ensure the server is up before creating the main window
+  setTimeout(createMainWindow, 5000); // Adjust the delay as needed
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    // Close the server before quitting the app
     if (serverProcess) {
-      serverProcess.kill('SIGINT');
+      serverProcess.kill();
     }
     app.quit();
   }
 });
 
-app.on('quit', () => {
-  if (serverProcess) {
-    serverProcess.kill('SIGINT');
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createMainWindow();
   }
 });
