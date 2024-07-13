@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "axios": "latest",
+    "express": "^4.19.2",
     "google-auth-library": "latest",
     "opn": "latest"
   },
